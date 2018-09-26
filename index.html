@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Giftastic</title>
+    <style></style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Fun with Gifs</h1>
+
+        <div id="buttons-view"></div>
+
+        <form id="topic-form">
+            <label for="topic-input">Add your favorite!</label>
+            <input type="text" id="topic-input">
+            <br>
+            <input id="add-topic" type="submit" value="Pick yours!">
+        </form>
+
+    </div>
+    <div id="gifs-appear-here">
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+
+        var topics = ["Videogames", "Marvel", "Football", "Classic cars", "Snow", "Music", "Dogs", "Adidas", "Humor", "Cats"];
+        for (var i = 0; i < topics.length; i++) {
+            
+        }
+
+        function displayTopicInfo() {
+            var topic = $(this).attr("data-topic");
+            
+        
+            var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + topic + "&api_key=dc6zaTOxFJmzC&limit=10";
+            
+
+
+
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            }).then(function (response) {
+            
+                var results = response.data;
+
+                for (var i = 0; i < results.length; i++) {
+
+                    var gifDiv = $("<div>");
+                    var rating = results[i].rating;
+                    var p = $("<p>").text("Rating " + rating);
+                    var image = $("<img>");
+                    image.attr("src", results[i].images.fixed_height.url);
+                    image.attr("data-still", results[i].images.fixed_height_still.url);
+                    image.attr("data-animate", results[i].images.fixed_height.url);
+                    image.attr("data-state", "animate");
+                    image.addClass("gif");
+                    gifDiv.append(image);
+                    gifDiv.append(p);
+                    $("#gifs-appear-here").prepend(gifDiv);
+                }
+            });
+        }
+
+        function renderButtons() {
+            
+            $("#buttons-view").html("");
+            for (var i = 0; i < topics.length; i++) {
+                var a = $("<button>");
+                a.addClass("topic-btn");
+                a.attr("data-topic", topics[i]);
+                a.text(topics[i]);
+                $("#buttons-view").append(a);
+            }
+        }
+        $("#add-topic").on("click", function (event) {
+            event.preventDefault();
+            var topic = $("#topic-input").val().trim();
+            topics.push(topic);
+            renderButtons();
+            
+        });
+        $(document).on("click", ".topic-btn", displayTopicInfo);
+
+        $(document).on("click", ".gif", function () {
+            var state = $(this).attr("data-state");
+            if (state === "still") {
+                $(this).attr("src", $(this).attr("data-animate"));
+                $(this).attr("data-state", "animate");
+            } else {
+                $(this).attr("src", $(this).attr("data-still"));
+                $(this).attr("data-state", "still");
+            }
+        });
+        renderButtons();
+
+
+
+    </script>
+</body>
+
+</html>
